@@ -161,7 +161,7 @@ This happened because all servers shared the global http.DefaultServeMux for rou
 
 **Solution:**
 
-To resolve this, we created a custom ServeMux for each mock server:
+To resolve this, I created a custom ServeMux for each mock server:
 
 - Used http.NewServeMux() to create a new multiplexer.
 - Registered routes ("/") to this custom multiplexer instead of the global one.
