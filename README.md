@@ -1,4 +1,4 @@
-# Load Balancer in Go
+# Custom Load Balancer in Go
 
 This project implements a load balancer in Go, simulating traffic distribution across mock servers with built-in health checks and configurable load-balancing algorithms.
 
@@ -129,7 +129,7 @@ stop 8081
 3. Logs in the load balancer will show:
 
 ```
-Server localhost:8081 is down\
+Server localhost:8081 is down
 Server localhost:8082 is healthy
 ```
 
