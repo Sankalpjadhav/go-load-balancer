@@ -2,13 +2,7 @@
 
 This project implements a load balancer in Go, simulating traffic distribution across mock servers with built-in health checks and configurable load-balancing algorithms.
 
-Step 1: Initialize your project in project folder go-load-balancer
-
-> go mod init go-load-balancer
-
-The go mod init command creates a go.mod file to track your code's dependencies. So far, the file includes only the name of your module and the Go version your code supports. But as you add dependencies, the go.mod file will list the versions your code depends on. This keeps builds reproducible and gives you direct control over which module versions to use.
-
-Step 2: Create the Project Structure
+## Project Structure
 
 ```
 go-load-balancer/
@@ -16,25 +10,107 @@ go-load-balancer/
 │ └── mock_server.go # Code for creating mock servers
 ├── load-balancer/
 │ └── load_balancer.go # Code for load balancer logic
+| └── health_checker.go # Code for checking health of mock servers
 ├── test/
-└── test_traffic.go # Code for simulating traffic
+├── go.mod
+└── README.md
 ```
 
-Step 3: Deploy multiple (3) mock servers where traffic will be forwarded to from the load balancer
+## Prerequisites
 
-Refer the mock_server.go file which is responsible for running multiple mock servers
+- Install Go (version 1.23 or later).
+- Set up the project by initializing the Go module.
+  > go mod init go-load-balancer
 
-Step 4: Run the load balancer
+The go mod init command creates a go.mod file to track your code's dependencies. So far, the file includes only the name of your module and the Go version your code supports. But as you add dependencies, the go.mod file will list the versions your code depends on. This keeps builds reproducible and gives you direct control over which module versions to use.
 
-Now that your mock servers are running successfully, the next step is to focus on building the load balancer. This component will distribute incoming requests across the mock servers using your chosen load-balancing algorithm.
+## Steps to Run
 
-The load balancer will:
+> [!NOTE]
+> Open three terminals to see the logs for Client Requests, Load Balancer, and Mock Servers.
 
-- **Accept Client Requests:** Listen on a specific port for incoming HTTP requests.
-- **Route Requests:** Distribute the requests to available mock servers based on the selected algorithm (e.g., Round Robin or Weighted Round Robin).
-- **Health Check:** Periodically check the health of the mock servers to avoid routing traffic to an unavailable server.
+### Step 1: Start Mock Servers [Terminal 1]
 
-Refer the load-balancer folder which is responsible for running for deploying load balancer, store server config, and handle periodic health checks.
+The mock servers simulate backend servers that the load balancer will forward requests to. Each server listens on a unique port and responds to health checks and client requests.
+
+1. Change to the mock-servers directory:
+
+   > cd mock-servers
+
+2. Run the mock servers:
+
+   > go run mock_server.go
+
+3. You should see output like:
+
+```
+Mock Server Management CLI
+Type 'start <port>' to start a new server or 'stop <port>' to stop an existing server.
+Example: start 8081 or stop 8082
+>
+```
+
+4. Start/Stop mock servers as per your needs:
+
+   > start 8081
+   > start 8082
+
+### Step 2: Start the Load Balancer [Terminal 2]
+
+The load balancer distributes client requests to the mock servers using a round-robin algorithm. It also periodically checks the health of servers to ensure requests are not routed to unhealthy servers.
+
+1. Change to the load-balancer directory:
+
+   > cd ../load-balancer
+
+2. Run the Load Balancer and Health Checker
+
+   > go run .
+
+3. You should see output like:
+
+```
+Load Balancer Management CLI
+Type 'add <server>' to add a server or 'remove <server>' to remove a server.
+Example: add localhost:8081 or remove localhost:8082
+> Starting load balancer on port 9090...
+```
+
+4. Add the mock servers you already started as part of `Step 1`, these servers will be tracked by the Load Balancer
+
+   > add localhost:8081
+   > add localhost:8082
+
+### Step 3: Send Client Requests [Terminal 3]
+
+Once the load balancer is running, you can simulate client traffic by sending HTTP requests to the load balancer's port (9090).
+
+1. Use curl to send requests:
+
+   > curl -s http://localhost:9090
+
+2. You will see responses like:
+
+   > Response from server: localhost:8081
+
+`Note:` The load balancer will forward requests to different servers in a round-robin manner for the subsequent requests.
+
+### Step 4: Simulate Server Failures
+
+You can stop a mock server to simulate a failure and observe how the load balancer responds.
+
+1. Stop a mock server by running below command on `Terminal 1`
+
+   > stop 8081
+
+2. The load balancer will detect the server is down via health checks and stop routing requests to it.
+
+3. Logs in the load balancer will show:
+
+   > Server localhost:8081 is down
+   > Server localhost:8082 is healthy
+
+4. Verify by sending requests again. The load balancer will route traffic only to healthy servers.
 
 ## Problems Encountered
 
@@ -95,9 +171,3 @@ Independent Servers: Each mock server should ideally have its own routing logic.
 **Why Does the Default ServeMux Exist?**
 
 The DefaultServeMux is a convenient tool for simple applications where only one HTTP server is used. It avoids the need to explicitly manage route registration in small projects. However, in applications with multiple servers or complex routing requirements, relying on a shared multiplexer can lead to issues, as seen here.
-
-Problem 2:
-
-Solution:
-
-Reasoning:
