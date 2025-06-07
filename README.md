@@ -20,7 +20,8 @@ go-load-balancer/
 
 - Install Go (version 1.23 or later).
 - Set up the project by initializing the Go module.
-  > go mod init go-load-balancer
+
+> > go mod init go-load-balancer
 
 The go mod init command creates a go.mod file to track your code's dependencies. So far, the file includes only the name of your module and the Go version your code supports. But as you add dependencies, the go.mod file will list the versions your code depends on. This keeps builds reproducible and gives you direct control over which module versions to use.
 
@@ -35,11 +36,11 @@ The mock servers simulate backend servers that the load balancer will forward re
 
 1. Change to the mock-servers directory:
 
-   > cd mock-servers
+> > cd mock-servers
 
 2. Run the mock servers:
 
-   > go run mock_server.go
+> > go run mock_server.go
 
 3. You should see output like:
 
@@ -52,8 +53,9 @@ Example: start 8081 or stop 8082
 
 4. Start/Stop mock servers as per your needs:
 
-   > start 8081
-   > start 8082
+> > start 8081
+
+> > start 8082
 
 ### Step 2: Start the Load Balancer [Terminal 2]
 
@@ -61,11 +63,11 @@ The load balancer distributes client requests to the mock servers using a round-
 
 1. Change to the load-balancer directory:
 
-   > cd ../load-balancer
+> > cd ../load-balancer
 
 2. Run the Load Balancer and Health Checker
 
-   > go run .
+> > go run .
 
 3. You should see output like:
 
@@ -78,8 +80,9 @@ Example: add localhost:8081 or remove localhost:8082
 
 4. Add the mock servers you already started as part of `Step 1`, these servers will be tracked by the Load Balancer
 
-   > add localhost:8081
-   > add localhost:8082
+> > add localhost:8081
+
+> > add localhost:8082
 
 ### Step 3: Send Client Requests [Terminal 3]
 
@@ -87,11 +90,11 @@ Once the load balancer is running, you can simulate client traffic by sending HT
 
 1. Use curl to send requests:
 
-   > curl -s http://localhost:9090
+> > curl -s http://localhost:9090
 
 2. You will see responses like:
 
-   > Response from server: localhost:8081
+> > Response from server: localhost:8081
 
 `Note:` The load balancer will forward requests to different servers in a round-robin manner for the subsequent requests.
 
@@ -101,14 +104,14 @@ You can stop a mock server to simulate a failure and observe how the load balanc
 
 1. Stop a mock server by running below command on `Terminal 1`
 
-   > stop 8081
+> > stop 8081
 
 2. The load balancer will detect the server is down via health checks and stop routing requests to it.
 
 3. Logs in the load balancer will show:
 
-   > Server localhost:8081 is down
-   > Server localhost:8082 is healthy
+> > Server localhost:8081 is down\
+> > Server localhost:8082 is healthy
 
 4. Verify by sending requests again. The load balancer will route traffic only to healthy servers.
 
