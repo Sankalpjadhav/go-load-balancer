@@ -4,7 +4,7 @@ This project implements a load balancer in Go, simulating traffic distribution a
 
 Step 1: Initialize your project in project folder go-load-balancer
 
->go mod init go-load-balancer
+> go mod init go-load-balancer
 
 The go mod init command creates a go.mod file to track your code's dependencies. So far, the file includes only the name of your module and the Go version your code supports. But as you add dependencies, the go.mod file will list the versions your code depends on. This keeps builds reproducible and gives you direct control over which module versions to use.
 
@@ -19,6 +19,22 @@ go-load-balancer/
 ├── test/
 └── test_traffic.go # Code for simulating traffic
 ```
+
+Step 3: Deploy multiple (3) mock servers where traffic will be forwarded to from the load balancer
+
+Refer the mock_server.go file which is responsible for running multiple mock servers
+
+Step 4: Run the load balancer
+
+Now that your mock servers are running successfully, the next step is to focus on building the load balancer. This component will distribute incoming requests across the mock servers using your chosen load-balancing algorithm.
+
+The load balancer will:
+
+- **Accept Client Requests:** Listen on a specific port for incoming HTTP requests.
+- **Route Requests:** Distribute the requests to available mock servers based on the selected algorithm (e.g., Round Robin or Weighted Round Robin).
+- **Health Check:** Periodically check the health of the mock servers to avoid routing traffic to an unavailable server.
+
+Refer the load-balancer folder which is responsible for running for deploying load balancer, store server config, and handle periodic health checks.
 
 ## Problems Encountered
 
@@ -54,7 +70,7 @@ To resolve this, we created a custom ServeMux for each mock server:
 
 **Reasoning:**
 
-In Go's net/http package, the http.HandleFunc function registers routes (like "/") to a default multiplexer (http.DefaultServeMux). When you call http.ListenAndServe, it uses this global multiplexer by default if you don’t specify your own.
+In Go's **net/http** package, the http.HandleFunc function registers routes (like "/") to a default multiplexer (http.DefaultServeMux). When you call http.ListenAndServe, it uses this global multiplexer by default if you don’t specify your own.
 
 The problem arises because all your mock servers are running in the same process and registering the same "/" routes on the shared default multiplexer. When multiple servers attempt to register the same routes, Go’s HTTP server detects a conflict, as a route can only be registered once per multiplexer.
 
@@ -67,11 +83,13 @@ Independent Servers: Each mock server should ideally have its own routing logic.
 **Why This Workaround Fixes the Issue?**
 
 1. Creating a New ServeMux for Each Server
+
    The http.NewServeMux() function creates a new instance of a multiplexer. Each instance manages its own set of route registrations. By doing this:
    Each server operates with an independent routing table.
    Routes for one server won’t conflict with routes for another server.
 
 2. Explicitly Binding the ServeMux to the Server
+
    When calling http.ListenAndServe, you can pass the specific ServeMux instance that the server should use. This ensures that the server doesn’t rely on the global DefaultServeMux, avoiding route conflicts.
 
 **Why Does the Default ServeMux Exist?**
