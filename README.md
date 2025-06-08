@@ -1,6 +1,10 @@
-# Custom Load Balancer in Go
+# Build your custom Load Balancer in Go
 
-This project implements a load balancer in Go, simulating traffic distribution across mock servers with built-in health checks and configurable load-balancing algorithms.
+This project implements a load balancer in Go, simulating traffic distribution across mock servers with built-in health checks and configurable load-balancing algorithms. Currently, Round-Robin algorithm is implemented.
+
+## Design
+
+![Design diagram shows how Round-Robin algorithm is used to distribute traffic across mock servers.](/assets/load-balancer.gif)
 
 ## Project Structure
 
